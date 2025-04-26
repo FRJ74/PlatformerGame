@@ -110,8 +110,21 @@ const movePlayer = (key, xVelocity, isPressed) => {
             if (xVelocity === 0) {
                 player.velocity.x = xVelocity;
               } // Set horizontal velocity based on key state
-            break;
-            }
+              player.velocity.x -= xVelocity; // Move left
+                break;
+        case "ArrowUp":  
+        case " ":            
+        case "Spacebar":
+                player.velocity.y -= 8;
+                break;
+        case "ArrowRight":
+                keys.rightKey.pressed = isPressed; // Update right key state
+                  if (xVelocity === 0) {
+                       player.velocity.x = xVelocity;
+                     } // Set horizontal velocity based on key state
+                     player.velocity.x += xVelocity; // Move right
+                     break;
+  }        
 };
 
 // Function to start the game
@@ -123,4 +136,8 @@ const startGame = () => {
 
 // Event listener for the start button
 startBtn.addEventListener("click", startGame); // Start the game when the button is clicked
+
+window.addEventListener('keydown', ({ key }) => {
+    movePlayer(key, 8, true); // Handle keydown events for player movement
+}); // Handle keydown events
 
