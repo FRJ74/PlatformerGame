@@ -97,9 +97,21 @@ const keys = {
     leftKey: { pressed: false }, // Left arrow key state
 };
 
-// Function to handle player movement (currently unused)
+// Function to handle player movement based on key presses
 const movePlayer = (key, xVelocity, isPressed) => {
-    // Placeholder for handling key-based movement
+    if (!isCheckpointCollisionDetectionActive) {
+        player.velocity.x = 0;
+        player.velocity.y = 0;
+        return
+    } // If checkpoint collision detection is not active, do nothing
+    switch (key) {
+        case "ArrowLeft":
+            keys.leftKey.pressed = isPressed; // Update left key state
+            if (xVelocity === 0) {
+                player.velocity.x = xVelocity;
+              } // Set horizontal velocity based on key state
+            break;
+            }
 };
 
 // Function to start the game
