@@ -72,6 +72,20 @@ class Player {
     }
 }
 
+class Platform {
+    constructor({ x, y, width, height }) {
+        this.position = { x, y }; // Platform's position
+        this.width = width; // Platform's width
+        this.height = height; // Platform's height
+    }
+
+    // Draw the platform on the canvas
+    draw() {
+        ctx.fillStyle = "#ffcc99"; // Platform's color
+        ctx.fillRect(this.position.x, this.position.y, this.width, this.height); // Draw platform as a rectangle
+    }
+}
+
 // Create a new player instance
 const player = new Player();
 
@@ -131,7 +145,14 @@ const movePlayer = (key, xVelocity, isPressed) => {
 const startGame = () => {
     canvas.style.display = "block"; // Show the canvas
     startScreen.style.display = "none"; // Hide the start screen
-    player.draw(); // Draw the player for the first time
+   animate(); // Start the animation loop
+    isCheckpointCollisionDetectionActive = true; // Enable checkpoint collision detection
+    player.position.x = proportionalSize(10); // Reset player position
+    player.position.y = proportionalSize(400); // Reset player position
+    player.velocity.x = 0; // Reset horizontal velocity
+    player.velocity.y = 0; // Reset vertical velocity
+    checkpointScreen.style.display = "none"; // Hide the checkpoint screen
+    checkpointMessage.innerText = ""; // Clear the checkpoint message
 };
 
 // Event listener for the start button
@@ -140,4 +161,8 @@ startBtn.addEventListener("click", startGame); // Start the game when the button
 window.addEventListener('keydown', ({ key }) => {
     movePlayer(key, 8, true); // Handle keydown events for player movement
 }); // Handle keydown events
+
+window.addEventListener("keyup", ({key}) => { 
+    movePlayer(key, 0, false); // Handle keyup events for player movement
+});
 
