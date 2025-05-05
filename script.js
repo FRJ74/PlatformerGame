@@ -89,6 +89,18 @@ class Platform {
 // Create a new player instance
 const player = new Player();
 
+const platformPositions = [
+    { x: proportionalSize(10), y: proportionalSize(400), width: proportionalSize(100), height: proportionalSize(20) }, // Platform 1
+    { x: proportionalSize(200), y: proportionalSize(300), width: proportionalSize(100), height: proportionalSize(20) }, // Platform 2
+    { x: proportionalSize(400), y: proportionalSize(200), width: proportionalSize(100), height: proportionalSize(20) }, // Platform 3
+    { x: proportionalSize(600), y: proportionalSize(100), width: proportionalSize(100), height: proportionalSize(20) }, // Platform 4
+    { x: proportionalSize(800), y: proportionalSize(50), width: proportionalSize(100), height: proportionalSize(20) }, // Platform 5
+    { x: proportionalSize(1000), y: proportionalSize(400), width: proportionalSize(100), height: proportionalSize(20) }, // Platform 6
+    { x: proportionalSize(1200), y: proportionalSize(300), width: proportionalSize(100), height: proportionalSize(20) }, // Platform 7
+    { x: proportionalSize(1400), y: proportionalSize(200), width: proportionalSize(100), height: proportionalSize(20) }, // Platform 8
+    { x: proportionalSize(1600), y: proportionalSize(100), width: proportionalSize(100), height: proportionalSize(20) }, // Platform 9
+]; // Array to store platform positions
+
 // Animation loop to update the game state
 const animate = () => {
     requestAnimationFrame(animate); // Request the next animation frame
