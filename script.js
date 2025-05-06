@@ -1,175 +1,169 @@
-// DOM elements
-const startBtn = document.getElementById("start-btn"); // Start button to begin the game
-const canvas = document.getElementById("canvas"); // Canvas element for rendering the game
-const startScreen = document.querySelector(".start-screen"); // Start screen overlay
-const checkpointScreen = document.querySelector(".checkpoint-screen"); // Checkpoint screen overlay
-const checkpointMessage = document.querySelector(".checkpoint-screen > p"); // Message displayed on the checkpoint screen
+const startBtn = document.getElementById("start-btn");
+const canvas = document.getElementById("canvas");
+const startScreen = document.querySelector(".start-screen");
+const checkpointScreen = document.querySelector(".checkpoint-screen");
+const checkpointMessage = document.querySelector(".checkpoint-screen > p");
+const ctx = canvas.getContext("2d");
+canvas.width = innerWidth;
+canvas.height = innerHeight;
+const gravity = 0.5;
+let isCheckpointCollisionDetectionActive = true;
 
-// Canvas setup
-const ctx = canvas.getContext("2d"); // Canvas rendering context
-canvas.width = innerWidth; // Set canvas width to the window's inner width
-canvas.height = innerHeight; // Set canvas height to the window's inner height
-
-// Game constants
-const gravity = 0.5; // Gravity constant for player movement
-let isCheckpointCollisionDetectionActive = true; // Flag to enable/disable checkpoint collision detection
-
-// Utility function to calculate proportional sizes based on screen height
 const proportionalSize = (size) => {
-    return innerHeight < 500 ? Math.ceil((size / 500) * innerHeight) : size;
-};
-
-// Player class to define the player character
-class Player {
-    constructor() {
-        // Player's position on the canvas
-        this.position = {
-           x: proportionalSize(10), // Initial x position
-           y: proportionalSize(400), // Initial y position
-        };
-        // Player's velocity for movement
-        this.velocity = {
-            x: 0, // Horizontal velocity
-            y: 0, // Vertical velocity
-        };
-        // Player's dimensions
-        this.width = proportionalSize(40); // Player's width
-        this.height = proportionalSize(40); // Player's height
-        this.isGrounded = false; // Flag to check if the player is on the ground
-    }
-
-    // Draw the player on the canvas
-    draw() {
-        ctx.fillStyle = "#99c9ff"; // Player's color
-        ctx.fillRect(this.position.x, this.position.y, this.width, this.height); // Draw player as a rectangle
-    }
-
-    // Update the player's position and handle collisions
-    update() {
-        this.draw(); // Draw the player
-        this.position.x += this.velocity.x; // Update horizontal position
-        this.position.y += this.velocity.y; // Update vertical position
-
-        // Apply gravity
-        if (this.position.y + this.height < canvas.height) {
-            this.velocity.y += gravity; // Apply gravity
-            this.isGrounded = false; // Player is in the air
-        } else {
-            this.velocity.y = 0; // Stop falling
-            this.isGrounded = true; // Player is on the ground
-        }
-
-        // Prevent the player from moving off the canvas
-        if (this.position.x < 0) this.position.x = 0;
-        if (this.position.x + this.width > canvas.width) this.position.x = canvas.width - this.width;
-    }
+  return innerHeight < 500 ? Math.ceil((size / 500) * innerHeight) : size;
 }
 
-// Create new player instances
-const players = [new Player(), new Player()]; // Example: Two players
+class Player {
+  constructor() {
+    this.position = {
+      x: proportionalSize(10),
+      y: proportionalSize(400),
+    };
+    this.velocity = {
+      x: 0,
+      y: 0,
+    };
+    this.width = proportionalSize(40);
+    this.height = proportionalSize(40);
+  }
+  draw() {
+    ctx.fillStyle = "#99c9ff";
+    ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+  }
+  
+  update() {
+    this.draw();
+    this.position.x += this.velocity.x;
+    this.position.y += this.velocity.y;
 
-// Function to check for collisions between the player and platforms
-const checkCollisions = (player) => {
-    platforms.forEach((platform) => {
-        // Check if the player is above the platform and falling
-        if (
-            player.position.y + player.height <= platform.position.y &&
-            player.position.y + player.height + player.velocity.y >= platform.position.y &&
-            player.position.x + player.width >= platform.position.x &&
-            player.position.x <= platform.position.x + platform.width
-        ) {
-            player.velocity.y = 0; // Stop falling
-            player.position.y = platform.position.y - player.height; // Place the player on the platform
-        }
-    });
-};
-
-// Animation loop to update the game state
-const animate = () => {
-    requestAnimationFrame(animate); // Request the next animation frame
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-
-    platforms.forEach((platform) => platform.draw()); // Draw all platforms
-    players.forEach((player) => {
-        player.update(); // Update the player's position
-        checkCollisions(player); // Check for collisions with platforms
-    });
-
-    // Handle player movement based on key presses
-    if (keys.rightKey.pressed) {
-        player.velocity.x = 5; // Move right
-    } else if (keys.leftKey.pressed) {
-        player.velocity.x = -5; // Move left
+    if (this.position.y + this.height + this.velocity.y <= canvas.height) {
+      if (this.position.y < 0) {
+        this.position.y = 0;
+        this.velocity.y = gravity;
+      }
+      this.velocity.y += gravity;
     } else {
-        player.velocity.x = 0; // Stop horizontal movement
+      this.velocity.y = 0;
     }
-};
 
-// Object to track the state of key presses
+    if (this.position.x < this.width) {
+      this.position.x = this.width;
+    }
+
+    if (this.position.x >= canvas.width - this.width * 2) {
+      this.position.x = canvas.width - this.width * 2;
+    }
+  }
+}
+
+class Platform {
+  constructor(x, y) {
+    this.position = {
+      x,
+      y,
+    };
+    this.width = 200;
+    this.height = proportionalSize(40);
+  }
+  draw() {
+    ctx.fillStyle = "#acd157";
+    ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+  }
+}
+
+const player = new Player();
+
+const platformPositions = [
+  { x: 500, y: proportionalSize(450) },
+  { x: 700, y: proportionalSize(400) },
+  { x: 850, y: proportionalSize(350) },
+  { x: 900, y: proportionalSize(350) },
+  { x: 1050, y: proportionalSize(150) },
+  { x: 2500, y: proportionalSize(450) },
+  { x: 2900, y: proportionalSize(400) },
+  { x: 3150, y: proportionalSize(350) },
+  { x: 3900, y: proportionalSize(450) },
+  { x: 4200, y: proportionalSize(400) },
+  { x: 4400, y: proportionalSize(200) },
+  { x: 4700, y: proportionalSize(150) },
+];
+
+const platforms = platformPositions.map(
+  (platform) => new Platform(platform.x, platform.y)
+);
+
+const animate = () => {
+  requestAnimationFrame(animate);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  platforms.forEach((platform) => {
+    platform.draw();
+  });
+
+  player.update();
+
+  if (keys.rightKey.pressed && player.position.x < proportionalSize(400)) {
+    player.velocity.x = 5;
+  } else if (keys.leftKey.pressed && player.position.x > proportionalSize(100)) {
+    player.velocity.x = -5;
+  } else {
+    player.velocity.x = 0;
+
+
+  }
+}
+
+
 const keys = {
-    rightKey: { pressed: false }, // Right arrow key state
-    leftKey: { pressed: false }, // Left arrow key state
+  rightKey: {
+    pressed: false
+  },
+  leftKey: {
+    pressed: false
+  }
 };
 
-// Function to handle player movement
 const movePlayer = (key, xVelocity, isPressed) => {
-    if (!isCheckpointCollisionDetectionActive) return; // Do nothing if collision detection is disabled
+  if (!isCheckpointCollisionDetectionActive) {
+    player.velocity.x = 0;
+    player.velocity.y = 0;
+    return;
+  }
 
-    switch (key) {
-        case "ArrowLeft":
-            keys.leftKey.pressed = isPressed; // Update left key state
-            break;
-        case "ArrowRight":
-            keys.rightKey.pressed = isPressed; // Update right key state
-            break;
-        case "ArrowUp":
-        case " ":
-        case "Spacebar":
-            if (isPressed && player.isGrounded) {
-                player.velocity.y = -10; // Jump
-                player.isGrounded = false; // Player is no longer on the ground
-            }
-            break;
-    }
-};
+  switch (key) {
+    case "ArrowLeft":
+      keys.leftKey.pressed = isPressed;
+      if (xVelocity === 0) {
+        player.velocity.x = xVelocity;
+      }
+      player.velocity.x -= xVelocity;
+      break;
+    case "ArrowUp":
+    case " ":
+    case "Spacebar":
+      player.velocity.y -= 8;
+      break;
+    case "ArrowRight":
+      keys.rightKey.pressed = isPressed;
+      if (xVelocity === 0) {
+        player.velocity.x = xVelocity;
+      }
+      player.velocity.x += xVelocity;
+  }
+}
 
-// Function to start the game
 const startGame = () => {
-    canvas.style.display = "block"; // Show the canvas
-    startScreen.style.display = "none"; // Hide the start screen
-    player.draw(); // Draw the player for the first time
-};
+  canvas.style.display = "block";
+  startScreen.style.display = "none";
+  animate();
+}
 
-// Event listener for the start button
-startBtn.addEventListener("click", startGame); // Start the game when the button is clicked
+startBtn.addEventListener("click", startGame);
 
-window.addEventListener("keydown", (event) => {
-    switch (event.key) {
-        case "ArrowRight":
-            keys.rightKey.pressed = true;
-            break;
-        case "ArrowLeft":
-            keys.leftKey.pressed = true;
-            break;
-        case "ArrowUp":
-        case " ":
-        case "Spacebar":
-            if (player.isGrounded) {
-                player.velocity.y = -10; // Jump
-                player.isGrounded = false;
-            }
-            break;
-    }
+window.addEventListener("keydown", ({ key }) => {
+  movePlayer(key, 8, true);
 });
 
-window.addEventListener("keyup", (event) => {
-    switch (event.key) {
-        case "ArrowRight":
-            keys.rightKey.pressed = false;
-            break;
-        case "ArrowLeft":
-            keys.leftKey.pressed = false;
-            break;
-    }
+window.addEventListener("keyup", ({ key }) => {
+  movePlayer(key, 0, false);
 });
-
