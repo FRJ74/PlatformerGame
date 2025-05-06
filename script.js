@@ -65,11 +65,11 @@ class Player {
     }
 }
 
-// Create a new player instance
-const player = new Player();
+// Create new player instances
+const players = [new Player(), new Player()]; // Example: Two players
 
 // Function to check for collisions between the player and platforms
-const checkCollisions = () => {
+const checkCollisions = (player) => {
     platforms.forEach((platform) => {
         // Check if the player is above the platform and falling
         if (
@@ -90,13 +90,15 @@ const animate = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
 
     platforms.forEach((platform) => platform.draw()); // Draw all platforms
-    player.update(); // Update the player's position
-    checkCollisions(); // Check for collisions with platforms
+    players.forEach((player) => {
+        player.update(); // Update the player's position
+        checkCollisions(player); // Check for collisions with platforms
+    });
 
     // Handle player movement based on key presses
-    if (keys.rightKey.pressed && player.position.x < proportionalSize(400)) {
+    if (keys.rightKey.pressed) {
         player.velocity.x = 5; // Move right
-    } else if (keys.leftKey.pressed && player.position.x > proportionalSize(400)) {
+    } else if (keys.leftKey.pressed) {
         player.velocity.x = -5; // Move left
     } else {
         player.velocity.x = 0; // Stop horizontal movement
@@ -140,4 +142,34 @@ const startGame = () => {
 
 // Event listener for the start button
 startBtn.addEventListener("click", startGame); // Start the game when the button is clicked
+
+window.addEventListener("keydown", (event) => {
+    switch (event.key) {
+        case "ArrowRight":
+            keys.rightKey.pressed = true;
+            break;
+        case "ArrowLeft":
+            keys.leftKey.pressed = true;
+            break;
+        case "ArrowUp":
+        case " ":
+        case "Spacebar":
+            if (player.isGrounded) {
+                player.velocity.y = -10; // Jump
+                player.isGrounded = false;
+            }
+            break;
+    }
+});
+
+window.addEventListener("keyup", (event) => {
+    switch (event.key) {
+        case "ArrowRight":
+            keys.rightKey.pressed = false;
+            break;
+        case "ArrowLeft":
+            keys.leftKey.pressed = false;
+            break;
+    }
+});
 
