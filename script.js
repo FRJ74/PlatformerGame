@@ -134,6 +134,13 @@ const animate = () => {
   } else {
     player.velocity.x = 0; // Stop horizontal movement
   }
+
+if (keys.rightKey.pressed && isCheckpointCollisionDetectionActive) {
+    platforms.forEach(platform => platform.position.x -= 5)
+  } else if (keys.leftKey.pressed && isCheckpointCollisionDetectionActive) {
+    platforms.forEach(platform => platform.position.x += 5)
+  } // Stop horizontal movement if no keys are pressed
+
 };
 
 // Object to track the state of key presses
