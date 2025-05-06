@@ -35,6 +35,7 @@ class Player {
         // Player's dimensions
         this.width = proportionalSize(40); // Player's width
         this.height = proportionalSize(40); // Player's height
+        this.isGrounded = false; // Flag to check if the player is on the ground
     }
 
     // Draw the player on the canvas
@@ -49,67 +50,48 @@ class Player {
         this.position.x += this.velocity.x; // Update horizontal position
         this.position.y += this.velocity.y; // Update vertical position
 
-        // Apply gravity and prevent the player from falling below the canvas
-        if (this.position.y + this.velocity.y + this.height <= canvas.height) {
-            if (this.position.y < 0) { // Prevent the player from moving above the canvas
-                this.position.y = 0;
-                this.velocity.y = gravity;
-            }
+        // Apply gravity
+        if (this.position.y + this.height < canvas.height) {
             this.velocity.y += gravity; // Apply gravity
+            this.isGrounded = false; // Player is in the air
         } else {
-            this.velocity.y = 0; // Stop vertical movement when hitting the ground
+            this.velocity.y = 0; // Stop falling
+            this.isGrounded = true; // Player is on the ground
         }
 
-        // Prevent the player from moving off the left side of the canvas
-        if (this.position.x < this.width) {
-            this.position.x = this.width;
-        }
-
-        // Prevent the player from moving off the right side of the canvas
-        if (this.position.x >= canvas.width - this.width * 2) {
-            this.position.x = canvas.width - this.width * 2;
-        }
-    }
-}
-
-class Platform {
-    constructor({ x, y, width, height }) {
-        this.position = { x, y }; // Platform's position
-        this.width = width; // Platform's width
-        this.height = height; // Platform's height
-    }
-
-    // Draw the platform on the canvas
-    draw() {
-        ctx.fillStyle = "#ffcc99"; // Platform's color
-        ctx.fillRect(this.position.x, this.position.y, this.width, this.height); // Draw platform as a rectangle
+        // Prevent the player from moving off the canvas
+        if (this.position.x < 0) this.position.x = 0;
+        if (this.position.x + this.width > canvas.width) this.position.x = canvas.width - this.width;
     }
 }
 
 // Create a new player instance
 const player = new Player();
 
-const platformPositions = [
-    { x: proportionalSize(10), y: proportionalSize(400), width: proportionalSize(100), height: proportionalSize(20) }, // Platform 1
-    { x: proportionalSize(200), y: proportionalSize(300), width: proportionalSize(100), height: proportionalSize(20) }, // Platform 2
-    { x: proportionalSize(400), y: proportionalSize(200), width: proportionalSize(100), height: proportionalSize(20) }, // Platform 3
-    { x: proportionalSize(600), y: proportionalSize(100), width: proportionalSize(100), height: proportionalSize(20) }, // Platform 4
-    { x: proportionalSize(800), y: proportionalSize(50), width: proportionalSize(100), height: proportionalSize(20) }, // Platform 5
-    { x: proportionalSize(1000), y: proportionalSize(400), width: proportionalSize(100), height: proportionalSize(20) }, // Platform 6
-    { x: proportionalSize(1200), y: proportionalSize(300), width: proportionalSize(100), height: proportionalSize(20) }, // Platform 7
-    { x: proportionalSize(1400), y: proportionalSize(200), width: proportionalSize(100), height: proportionalSize(20) }, // Platform 8
-    { x: proportionalSize(1600), y: proportionalSize(100), width: proportionalSize(100), height: proportionalSize(20) }, // Platform 9
-]; // Array to store platform positions
-
-const platforms = platformPositions.map((position) => new Platform(position)); // Create platform instances
-
-// Function to check for collisions between the player and platforms                                                                            
+// Function to check for collisions between the player and platforms
+const checkCollisions = () => {
+    platforms.forEach((platform) => {
+        // Check if the player is above the platform and falling
+        if (
+            player.position.y + player.height <= platform.position.y &&
+            player.position.y + player.height + player.velocity.y >= platform.position.y &&
+            player.position.x + player.width >= platform.position.x &&
+            player.position.x <= platform.position.x + platform.width
+        ) {
+            player.velocity.y = 0; // Stop falling
+            player.position.y = platform.position.y - player.height; // Place the player on the platform
+        }
+    });
+};
 
 // Animation loop to update the game state
 const animate = () => {
     requestAnimationFrame(animate); // Request the next animation frame
     ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+
+    platforms.forEach((platform) => platform.draw()); // Draw all platforms
     player.update(); // Update the player's position
+    checkCollisions(); // Check for collisions with platforms
 
     // Handle player movement based on key presses
     if (keys.rightKey.pressed && player.position.x < proportionalSize(400)) {
@@ -127,58 +109,35 @@ const keys = {
     leftKey: { pressed: false }, // Left arrow key state
 };
 
-// Function to handle player movement based on key presses
+// Function to handle player movement
 const movePlayer = (key, xVelocity, isPressed) => {
-    if (!isCheckpointCollisionDetectionActive) {
-        player.velocity.x = 0;
-        player.velocity.y = 0;
-        return
-    } // If checkpoint collision detection is not active, do nothing
+    if (!isCheckpointCollisionDetectionActive) return; // Do nothing if collision detection is disabled
+
     switch (key) {
         case "ArrowLeft":
             keys.leftKey.pressed = isPressed; // Update left key state
-            if (xVelocity === 0) {
-                player.velocity.x = xVelocity;
-              } // Set horizontal velocity based on key state
-              player.velocity.x -= xVelocity; // Move left
-                break;
-        case "ArrowUp":  
-        case " ":            
-        case "Spacebar":
-                player.velocity.y -= 8;
-                break;
+            break;
         case "ArrowRight":
-                keys.rightKey.pressed = isPressed; // Update right key state
-                  if (xVelocity === 0) {
-                       player.velocity.x = xVelocity;
-                     } // Set horizontal velocity based on key state
-                     player.velocity.x += xVelocity; // Move right
-                     break;
-  }        
+            keys.rightKey.pressed = isPressed; // Update right key state
+            break;
+        case "ArrowUp":
+        case " ":
+        case "Spacebar":
+            if (isPressed && player.isGrounded) {
+                player.velocity.y = -10; // Jump
+                player.isGrounded = false; // Player is no longer on the ground
+            }
+            break;
+    }
 };
 
 // Function to start the game
 const startGame = () => {
     canvas.style.display = "block"; // Show the canvas
     startScreen.style.display = "none"; // Hide the start screen
-   animate(); // Start the animation loop
-    isCheckpointCollisionDetectionActive = true; // Enable checkpoint collision detection
-    player.position.x = proportionalSize(10); // Reset player position
-    player.position.y = proportionalSize(400); // Reset player position
-    player.velocity.x = 0; // Reset horizontal velocity
-    player.velocity.y = 0; // Reset vertical velocity
-    checkpointScreen.style.display = "none"; // Hide the checkpoint screen
-    checkpointMessage.innerText = ""; // Clear the checkpoint message
+    player.draw(); // Draw the player for the first time
 };
 
 // Event listener for the start button
 startBtn.addEventListener("click", startGame); // Start the game when the button is clicked
-
-window.addEventListener('keydown', ({ key }) => {
-    movePlayer(key, 8, true); // Handle keydown events for player movement
-}); // Handle keydown events
-
-window.addEventListener("keyup", ({key}) => { 
-    movePlayer(key, 0, false); // Handle keyup events for player movement
-});
 
