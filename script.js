@@ -101,6 +101,10 @@ const platformPositions = [
     { x: proportionalSize(1600), y: proportionalSize(100), width: proportionalSize(100), height: proportionalSize(20) }, // Platform 9
 ]; // Array to store platform positions
 
+const platforms = platformPositions.map((position) => new Platform(position)); // Create platform instances
+
+// Function to check for collisions between the player and platforms                                                                            
+
 // Animation loop to update the game state
 const animate = () => {
     requestAnimationFrame(animate); // Request the next animation frame
