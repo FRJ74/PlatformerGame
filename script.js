@@ -140,6 +140,19 @@ if (keys.rightKey.pressed && isCheckpointCollisionDetectionActive) {
   } else if (keys.leftKey.pressed && isCheckpointCollisionDetectionActive) {
     platforms.forEach(platform => platform.position.x += 5)
   } // Stop horizontal movement if no keys are pressed
+platforms.forEach((platform) => {
+  const collisionDetectionRules = [
+    // Check for collision with the top of the platform
+      player.position.y + player.height + player.velocity.y >= platform.position.y &&
+        player.position.y + player.height + player.velocity.y <= platform.position.y + platform.height &&
+      player.position.y + player.height + player.velocity.y >= platform.position.y &&
+      player.position.x + player.width >= platform.position.x &&
+      player.position.x <= platform.position.x + platform.width,
+    // Check for collision with the bottom of the platform
+    ]
+});
+    // Check for collision with platforms
+    
 
 };
 
