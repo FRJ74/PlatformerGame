@@ -144,12 +144,23 @@ platforms.forEach((platform) => {
   const collisionDetectionRules = [
     // Check for collision with the top of the platform
       player.position.y + player.height + player.velocity.y >= platform.position.y &&
-        player.position.y + player.height + player.velocity.y <= platform.position.y + platform.height &&
+      player.position.y + player.height + player.velocity.y <= platform.position.y + platform.height &&
       player.position.y + player.height + player.velocity.y >= platform.position.y &&
       player.position.x + player.width >= platform.position.x &&
       player.position.x <= platform.position.x + platform.width,
     // Check for collision with the bottom of the platform
     ]
+    if (collisionDetectionRules.every((rule) => rule)) {
+      player.velocity.y = 0; // Stop vertical movement
+      return; // Exit the loop if a collision is detected
+    }
+
+    const platformDetectionRules = [ 
+      player.position.x >= platform.position.x - player.width /2,
+      player.position.x <= platform.position.x + platform.width - player.width / 3,
+      player.position.y + player.height >= platform.position.y,
+      player.position.y <= platform.position.y + platform.height,
+    ];
 });
     // Check for collision with platforms
     
