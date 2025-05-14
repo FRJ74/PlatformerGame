@@ -161,8 +161,7 @@ platforms.forEach((platform) => {
       player.position.y + player.height >= platform.position.y,
       player.position.y <= platform.position.y + platform.height,
     ];
-});
-    // Check for collision with platforms
+});// Check for collision with platforms
     
 
 };
