@@ -157,6 +157,10 @@ const animate = () => {
     platform.draw(); // Draw each platform
   });
 
+  checkpoints.forEach((checkpoint) => {
+    checkpoint.draw(); // Draw each checkpoint
+  });
+
   player.update(); // Update the player's position
 
   // Handle player movement based on key presses
@@ -170,8 +174,10 @@ const animate = () => {
 
 if (keys.rightKey.pressed && isCheckpointCollisionDetectionActive) {
     platforms.forEach(platform => platform.position.x -= 5)
+    checkpoints.forEach(checkpoint => checkpoint.position.x -= 5)
   } else if (keys.leftKey.pressed && isCheckpointCollisionDetectionActive) {
     platforms.forEach(platform => platform.position.x += 5)
+    checkpoints.forEach(checkpoint => checkpoint.position.x += 5)
   } // Stop horizontal movement if no keys are pressed
 platforms.forEach((platform) => {
   const collisionDetectionRules = [
@@ -200,9 +206,14 @@ platforms.forEach((platform) => {
       player.velocity.y = gravity;
     }
 });// Check for collision with platforms
-    
 
 };
+
+checkpoints.forEach((checkpoint, index, checkpoints) => {
+  const checkpointCollisionDetectionRules = [
+    player.position.x >= checkpoint.position.x,
+  ]
+});
 
 // Object to track the state of key presses
 const keys = {
@@ -249,6 +260,16 @@ const startGame = () => {
   canvas.style.display = "block"; // Show the canvas
   startScreen.style.display = "none"; // Hide the start screen
   animate(); // Start the animation loop
+};
+
+const showCheckpointScreen = (msg) => {
+  checkpointScreen.style.display = "block"; // Show the checkpoint screen
+  checkpointMessage.textContent = msg; // Set the checkpoint message
+  if (isCheckpointCollisionDetectionActive) {
+    setTimeout(() => {
+      checkpointScreen.style.display = "none"; // Hide the checkpoint screen after a delay
+    }, 2000)
+  }
 };
 
 // Event listener for the start button
