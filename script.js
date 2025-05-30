@@ -91,6 +91,16 @@ class Platform {
   }
 }
 
+class Checkpoint {
+  constructor(x, y,z) {
+    this.position = {
+      x, // Horizontal position
+      y, // Vertical position
+    };
+  }
+
+}
+
 // Create a new player instance
 const player = new Player();
 
@@ -161,6 +171,11 @@ platforms.forEach((platform) => {
       player.position.y + player.height >= platform.position.y,
       player.position.y <= platform.position.y + platform.height,
     ];
+
+    if (platformDetectionRules.every((rule) => rule)) {
+      player.position.y = platform.position.y + player.height;
+      player.velocity.y = gravity;
+    }
 });// Check for collision with platforms
     
 
