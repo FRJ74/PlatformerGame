@@ -212,7 +212,21 @@ platforms.forEach((platform) => {
 checkpoints.forEach((checkpoint, index, checkpoints) => {
   const checkpointCollisionDetectionRules = [
     player.position.x >= checkpoint.position.x,
-  ]
+    player.position.y >= checkpoint.position.y,
+    player.position.y + player.height <= checkpoint.position.y + checkpoint.height,
+    isCheckpointCollisionDetectionActive,
+    player.position.x - player.width <= checkpoint.position.x - checkpoint.width + player.width * 0.9,
+    index === 0 || checkpoints[index - 1].claimed === true, // Check if the previous checkpoint is claimed
+  ];
+  if (checkpointDetectionRules.every((rule) => rule)) {
+    checkpoint.claim(); // Claim the checkpoint
+    if (index === checkpoint.length - 1) {
+      showCheckpointScreen("You have reached the final checkpoint!"); // Show message for the final checkpoint
+      movePlayer("ArrowRight", 0, false); // Stop player movement 
+    } else if (player.position.x >= checkpoint.position.x <= checkpoint.position.x + 40) {
+      showCheckpointScreen(`Checkpoint ${checkpoint.position.z} claimed!`); // Show message for the claimed checkpoint
+    }
+  }
 });
 
 // Object to track the state of key presses
