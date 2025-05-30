@@ -97,9 +97,21 @@ class Checkpoint {
       x, // Horizontal position
       y, // Vertical position
     };
+    this.width =proportionalSize(40); // Checkpoint's width
+    this.height = proportionalSize(70); // Checkpoint's height
+    this.claimed = false; // Checkpoint state
   }
-
+   draw() {
+    ctx.fillStyle = "#f1be32"; // Checkpoint's color
+    ctx.fillRect(this.position.x, this.position.y, this.width, this.height); // Draw checkpoint as a rectangle
+   }
+   claim() {
+    Checkpoint.width = 0; // Set checkpoint width to 0 when claimed
+    Checkpoint.height = 0; // Set checkpoint height to 0 when claimed
+    this.position.y = Infinity; // Move the checkpoint off-screen
+    this.claimed = true; // Mark the checkpoint as claimed 
 }
+  }
 
 // Create a new player instance
 const player = new Player();
