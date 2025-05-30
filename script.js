@@ -137,6 +137,17 @@ const platforms = platformPositions.map(
   (platform) => new Platform(platform.x, platform.y)
 );
 
+// Create checkpoint instances based on positions
+const checkpointsPositions = [ 
+  { x: 1170, y: proportionalSize(80), z: 1 },
+  { x: 2900, y: proportionalSize(330),z: 2 },
+  { x: 4800, y: proportionalSize(80), z: 3 },
+] 
+
+const checkpoints = checkpointsPositions.map(checkpoint => new Checkpoint(checkpoint.x, checkpoint.y, checkpoint.z));
+// Function to handle checkpoint collision detection
+
+
 // Animation loop to update the game state
 const animate = () => {
   requestAnimationFrame(animate); // Request the next animation frame
